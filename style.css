@@ -1,0 +1,97 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#page {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+#topbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 2px solid black;
+}
+
+#title {
+    width: 50%;
+    text-align: center;
+}
+
+.title-spacing {
+    width: 25%;
+    margin: 4px;
+}
+
+#clear-btn {
+    margin: 2px;
+}
+
+.top-btn {
+    float: right;
+    margin: 2px;
+}
+
+#main-editor {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+#sidebar {
+    width: 25%;
+    border-right: 2px solid black;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.sidebar-tile {
+    width: 100px;
+    height: 100px;
+    margin: 15px;
+    border: 2px solid black;
+    padding: 0px;
+    opacity: 0.3;
+}
+
+.tile-selected {
+    opacity: 1;
+}
+
+.sidebar-tile img {
+    width: 100%;
+    height: 100%;
+}
+
+.map-tile {
+    margin: 0;
+    padding: 0;
+}
+
+.map-tile img {
+    width: 100%;
+    height: 100%;
+}
+
+#map {
+    width: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+#map-container {
+    width: 90%;
+    height: 90%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    border: 5px solid black;
+}

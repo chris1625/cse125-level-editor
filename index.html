@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CSE 125 Level Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div id="page">
+        <div id="topbar">
+            <div class="title-spacing">
+                <button id="clear-btn" type="button">Clear Map</button>
+            </div>
+            <h1 id="title">CSE 125 Level Editor</h1>
+            <div class="title-spacing">
+                <button id="save-btn" class="top-btn" type="button">Export JSON</button>
+                <button id="load-btn" class="top-btn" type="button">Load JSON</button>
+            </div>
+        </div>
+        <div id="main-editor">
+            <div id="sidebar">
+                <!-- Tiles for selection go here -->
+                <div id="empty-tile" class="sidebar-tile">
+                    <img src="tiles/empty_tex.png">
+                </div>
+                <div id="jail-tile" class="sidebar-tile">
+                    <img src="tiles/jail_tex.png">
+                </div>
+                <div id="wall-tile" class="sidebar-tile">
+                    <img src="tiles/wall_tex.png">
+                </div>
+
+            </div>
+
+            <div id="map">
+                <!-- TODO: level itself goes here -->
+                <div id="map-container">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
