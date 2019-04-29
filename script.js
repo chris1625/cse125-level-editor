@@ -12,6 +12,9 @@ var tileImages =
     'fence-tile': 'tiles/fence_tex.jpeg'
 }
 
+var leftClicked = false;
+var rightClicked = false;
+
 // Build empty game map once document is loaded
 $(document).ready(function() {
     // Clears and refills map with empty tiles
@@ -51,6 +54,24 @@ $(document).ready(function() {
         $(".map-tile").css("height", mapCtr.width()/WIDTH);
     }).resize()
 
+    $("#map-container").mousedown(function(e) {
+        if (e.which == 1) {
+            leftClicked = true;
+        }
+        else if (e.which == 3) {
+            rightClicked = true;
+        }
+    });
+
+    $("#map-container").mouseup(function(e) {
+        if (e.which == 1) {
+            leftClicked = false;
+        }
+        else if (e.which == 3) {
+            rightClicked = false;
+        }
+    });
+
     // Fill map with empty tiles
     emptyFill($("#map-container"));
 });
@@ -78,26 +99,41 @@ function emptyFill(mapCtr) {
 
 // Registers all necessary listeners
 function registerMapListeners() {
-    // Change tile on map
-    $(".map-tile").mousedown(function(e) {
-        if (e.which == 1) { // Left mouse button pressed
-            $(this).removeClass();
-            $(this).addClass("map-tile");
+    // Handlers for dragging
+    $(".map-tile").mousemove(function() {
+        changeTile($(this), leftClicked, rightClicked);
+    });
 
-            if (selectedTile)
-            {
-                var tileId = selectedTile.attr('id');
-                $(this).find("img").attr("src", tileImages[tileId]);
-                $(this).addClass(tileId);
-            }
+    // Handlers for clicking
+    $(".map-tile").mousedown(function(e) {
+        if (e.which == 1) {
+            changeTile($(this), true, false);
         }
-        else if (e.which == 3) { // Right mouse button pressed
-            $(this).removeClass();
-            $(this).addClass("map-tile");
-            $(this).find("img").attr("src", tileImages['empty-tile']);
-            $(this).addClass("empty-tile");
+        else if (e.which == 3) {
+            changeTile($(this), false, true);
         }
     });
+}
+
+function changeTile(tile, leftMouse, rightMouse) {
+    // Change tile on map
+    if (leftMouse) {
+        tile.removeClass();
+        tile.addClass("map-tile");
+
+        if (selectedTile)
+        {
+            var tileId = selectedTile.attr('id');
+            tile.find("img").attr("src", tileImages[tileId]);
+            tile.addClass(tileId);
+        }
+    }
+    else if (rightMouse) { // Right mouse button pressed
+        tile.removeClass();
+        tile.addClass("map-tile");
+        tile.find("img").attr("src", tileImages['empty-tile']);
+        tile.addClass("empty-tile");
+    }
 }
 
 // Exports map to file
