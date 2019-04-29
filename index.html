@@ -13,32 +13,21 @@
         <div id="topbar">
             <div class="title-spacing">
                 <button id="clear-btn" type="button">Clear Map</button>
+                <input id="load-btn" class="top-btn" type="file"/>
             </div>
             <h1 id="title">CSE 125 Level Editor</h1>
             <div class="title-spacing">
-                <button id="save-btn" class="top-btn" type="button">Export JSON</button>
-                <button id="load-btn" class="top-btn" type="button">Load JSON</button>
+                <button id="save-btn" class="top-btn" type="button">Export</button>
             </div>
         </div>
         <div id="main-editor">
             <div id="sidebar">
                 <!-- Tiles for selection go here -->
-                <div id="empty-tile" class="sidebar-tile">
-                    <img src="tiles/empty_tex.png">
-                </div>
-                <div id="jail-tile" class="sidebar-tile">
-                    <img src="tiles/jail_tex.png">
-                </div>
-                <div id="wall-tile" class="sidebar-tile">
-                    <img src="tiles/wall_tex.png">
-                </div>
-
             </div>
 
             <div id="map">
-                <!-- TODO: level itself goes here -->
-                <div id="map-container">
-                </div>
+                <!-- Level itself goes here -->
+                <div id="map-container" oncontextmenu="return false;"></div>
             </div>
         </div>
     </div>

@@ -28,11 +28,18 @@ html, body {
 
 #clear-btn {
     margin: 2px;
+    float: left;
 }
 
 .top-btn {
     float: right;
     margin: 2px;
+}
+
+#load-btn {
+    margin: 2px;
+    width: 60%;
+    float: left;
 }
 
 #main-editor {
