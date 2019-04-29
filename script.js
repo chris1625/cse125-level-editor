@@ -8,7 +8,8 @@ var tileImages =
 {
     'empty-tile': 'tiles/empty_tex.png',
     'jail-tile':  'tiles/jail_tex.png',
-    'wall-tile':  'tiles/wall_tex.png'
+    'wall-tile':  'tiles/wall_tex.png',
+    'fence-tile': 'tiles/fence_tex.jpeg'
 }
 
 // Build empty game map once document is loaded
@@ -58,9 +59,9 @@ $(document).ready(function() {
 // Fills map with empty white squares
 function emptyFill(mapCtr) {
     for (i = 0; i < WIDTH*WIDTH; i++) {
-        // Wall around border
+        // Fence around border
         if (i < WIDTH || i >= WIDTH*(WIDTH-1) || i % WIDTH == 0 || i % WIDTH == WIDTH - 1) {
-            mapCtr.append("<div class=\"map-tile wall-tile\"><img src=\"" + tileImages['wall-tile'] + "\"></div>");
+            mapCtr.append("<div class=\"map-tile fence-tile\"><img src=\"" + tileImages['fence-tile'] + "\"></div>");
         }
         // Empty tiles otherwise
         else {
