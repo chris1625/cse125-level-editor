@@ -1,5 +1,5 @@
 // Width/depth in tiles
-var WIDTH = 25;
+var WIDTH = 11;
 
 var selectedTile = null;
 
@@ -9,7 +9,7 @@ var tileImages =
     'empty-tile': 'tiles/empty_tex.png',
     'jail-tile':  'tiles/jail_tex.png',
     'wall-tile':  'tiles/wall_tex.png',
-    'fence-tile': 'tiles/fence_tex.jpeg'
+    'fence-tile': 'tiles/fence_tex.png'
 }
 
 var leftClicked = false;
@@ -34,7 +34,7 @@ $(document).ready(function() {
 
     // Add tiles to sidebar
     for (var key in tileImages) {
-        $("#sidebar").append("<div id=\"" + key + "\" class=\"sidebar-tile\"><img src=\"" + tileImages[key] + "\"></div>");
+        $("#tile-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile\"><img src=\"" + tileImages[key] + "\"></div>");
     }
 
     // Select specified tile on click
@@ -106,10 +106,13 @@ function registerMapListeners() {
 
     // Handlers for clicking
     $(".map-tile").mousedown(function(e) {
-        if (e.which == 1) {
+        if (e.which == 1) { // Left mouse button
             changeTile($(this), true, false);
         }
-        else if (e.which == 3) {
+        else if (e.which == 2) { // Middle mouse button
+            rotateTile($(this));
+        }
+        else if (e.which == 3) { // Right mouse button
             changeTile($(this), false, true);
         }
     });
@@ -118,6 +121,7 @@ function registerMapListeners() {
 function changeTile(tile, leftMouse, rightMouse) {
     // Change tile on map
     if (leftMouse) {
+        tile.css("transform", "");
         tile.removeClass();
         tile.addClass("map-tile");
 
@@ -129,6 +133,7 @@ function changeTile(tile, leftMouse, rightMouse) {
         }
     }
     else if (rightMouse) { // Right mouse button pressed
+        tile.css("transform", "");
         tile.removeClass();
         tile.addClass("map-tile");
         tile.find("img").attr("src", tileImages['empty-tile']);
@@ -136,14 +141,41 @@ function changeTile(tile, leftMouse, rightMouse) {
     }
 }
 
+function rotateTile(tile) {
+    // Change tile on map
+    var prevAngle = parseRotationAngle(tile.css("transform"));
+    var newAngle = (prevAngle + 90) % 360;
+    if (newAngle != 0) {
+        tile.css("transform", "rotate(" + newAngle + "deg)");
+    }
+    else {
+        tile.css("transform", "");
+    }
+}
+
+function parseRotationAngle(matrix) {
+    if (matrix == "none") {
+        return 0;
+    }
+    var values = matrix.split('(')[1].split(')')[0].split(',');
+    var a = values[0];
+    var b = values[1];
+    var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+
+    return (angle < 0) ? angle + 360 : angle;
+}
+
 // Exports map to file
 function exportMapToFile(mapCtr) {
     tileArray = [];
     $(mapCtr).children().each(function() {
+        tile = $(this);
         var classList = $(this).attr('class').split(/\s+/);
         $.each(classList, function(index, item) {
             if (item !== 'map-tile') {
-                tileArray.push(item);
+                // Also get rotation
+                var angle = parseRotationAngle(tile.css("transform"));
+                tileArray.push([item,angle]);
             }
         });
     });
@@ -171,8 +203,11 @@ function loadMapFromFile(e) {
         tileArray = contents.split("\n");
 
         for (var i = 0; i < tileArray.length; i++) {
-            tileType = tileArray[i];
+            var splitContents = tileArray[i].split(",");
+            var tileType = splitContents[0];
+            var rotation = splitContents[1];
             mapCtr.append("<div class=\"map-tile " + tileType + "\"><img src=\"" + tileImages[tileType] + "\"></div>");
+            mapCtr.children().last().css("transform", "rotate(" + rotation + "deg)");
         }
 
         // Fit to container
@@ -180,6 +215,9 @@ function loadMapFromFile(e) {
         $(".map-tile").css("height", mapCtr.width()/WIDTH)
 
         registerMapListeners();
+
+        // Clear "choose file" dialog
+        $("#load-btn").val(null);
     };
     reader.readAsText(file);
 }

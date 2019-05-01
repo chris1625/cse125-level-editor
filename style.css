@@ -52,9 +52,28 @@ html, body {
     width: 25%;
     border-right: 2px solid black;
     display: flex;
+    flex-direction: column;
+}
+
+#help {
+    width: 100%;
+    height: auto;
+    border-bottom: 2px solid black;
+    /*overflow-y: auto;*/
+}
+
+#help-body {
+    margin: 15px;
+    margin-left: -5px;
+}
+
+#tile-selection {
+    display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-content: flex-start;
+    overflow-y: auto;
+    height: 100%;
 }
 
 .sidebar-tile {

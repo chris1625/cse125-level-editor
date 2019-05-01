@@ -22,12 +22,28 @@
         </div>
         <div id="main-editor">
             <div id="sidebar">
-                <!-- Tiles for selection go here -->
+                <div id="help">
+                    <div id="help-body">
+                        <!-- General help and tips -->
+                        <ul>
+                            <li>Left-click a tile below to select it</li>
+                            <li>Left-click a tile on the map to change it to the selected tile</li>
+                            <li>Right-click a tile on the map to clear it</li>
+                            <li>Middle-click a tile on the map to rotate it</li>
+                            <li>Dragging also works for left and right clicking</li>
+                            <li>The "choose file" dialog will import a map file</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="tile-selection">
+                    <!-- Tiles for selection go here -->
+                </div>
             </div>
 
             <div id="map">
-                <!-- Level itself goes here -->
-                <div id="map-container" oncontextmenu="return false;" onmousedown="return false;"></div>
+                <div id="map-container" oncontextmenu="return false;" onmousedown="return false;">
+                    <!-- Map tiles go here -->
+                </div>
             </div>
         </div>
     </div>
