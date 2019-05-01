@@ -10,7 +10,9 @@ var tileImages =
     'empty-tile': 'tiles/empty_tex.png',
     'jail-tile':  'tiles/jail_tex.png',
     'wall-tile':  'tiles/wall_tex.png',
-    'fence-tile': 'tiles/fence_tex.png'
+    'fence-tile': 'tiles/fence_tex.png',
+    'human-spawn-tile': 'tiles/human_spawn_tex.png',
+    'dog-spawn-tile': 'tiles/dog_spawn_tex.png'
 }
 
 // Mouse buttons
