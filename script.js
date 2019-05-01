@@ -2,6 +2,7 @@
 var WIDTH = 11;
 
 var selectedTile = null;
+var hoveredTile = null;
 
 // Map of tile types to images
 var tileImages =
@@ -12,13 +13,19 @@ var tileImages =
     'fence-tile': 'tiles/fence_tex.png'
 }
 
+// Mouse buttons
 var leftClicked = false;
 var rightClicked = false;
+
+// Keys
+var escPressed = false;
+var spacePressed = false;
 
 // Build empty game map once document is loaded
 $(document).ready(function() {
     // Clears and refills map with empty tiles
     $("#clear-btn").click(function() {
+        $(this).blur(); // Unfocus button
         var mapCtr = $("#map-container");
         mapCtr.empty();
         emptyFill(mapCtr);
@@ -26,6 +33,7 @@ $(document).ready(function() {
 
     // Exports map as line-separated tiles
     $("#save-btn").click(function() {
+        $(this).blur(); // Unfocus button
         exportMapToFile($("#map-container"));
     });
 
@@ -36,6 +44,32 @@ $(document).ready(function() {
     for (var key in tileImages) {
         $("#tile-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile\"><img src=\"" + tileImages[key] + "\"></div>");
     }
+
+    // Keyboard handling
+    $(document).keydown(function(e) {
+        if (hoveredTile != null) {
+            if (e.which == 82) { // 'r' rotates tile
+                rotateTile(hoveredTile);
+            }
+            else if (e.which == 27) { // ESC clears tile
+                changeTile(hoveredTile, false, true);
+                escPressed = true;
+            }
+            else if (e.which == 32) { // SPACE places tile
+                changeTile(hoveredTile, true, false);
+                spacePressed = true;
+            }
+        }
+    });
+
+    $(document).keyup(function(e) {
+        if (e.which == 27) { // escape
+            escPressed = false;
+        }
+        else if (e.which == 32) { // space
+            spacePressed = false;
+        }
+    });
 
     // Select specified tile on click
     $(".sidebar-tile").click(function() {
@@ -101,7 +135,7 @@ function emptyFill(mapCtr) {
 function registerMapListeners() {
     // Handlers for dragging
     $(".map-tile").mousemove(function() {
-        changeTile($(this), leftClicked, rightClicked);
+        changeTile($(this), leftClicked || spacePressed, rightClicked || escPressed);
     });
 
     // Handlers for clicking
@@ -115,6 +149,16 @@ function registerMapListeners() {
         else if (e.which == 3) { // Right mouse button
             changeTile($(this), false, true);
         }
+    });
+
+    // See which element is being hovered over
+    $(".map-tile").hover(function() {
+        hoveredTile = $(this);
+    });
+
+    // Handler for keypresses
+    $(".map-tile").keydown(function() {
+        alert($(this).attr('class'));
     });
 }
 
@@ -216,8 +260,9 @@ function loadMapFromFile(e) {
 
         registerMapListeners();
 
-        // Clear "choose file" dialog
+        // Clear "choose file" dialog and unfocus it
         $("#load-btn").val(null);
+        $("#load-btn").blur();
     };
     reader.readAsText(file);
 }
