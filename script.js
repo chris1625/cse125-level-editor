@@ -1,5 +1,5 @@
 // Width/depth in tiles
-var WIDTH = 11;
+var WIDTH = 30;
 
 var selectedTile = null;
 var hoveredTile = null;
