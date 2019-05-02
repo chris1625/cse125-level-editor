@@ -1,5 +1,5 @@
 // Width/depth in tiles
-var WIDTH = 30;
+var WIDTH = 31;
 
 var selectedTile = null;
 var hoveredTile = null;
@@ -7,12 +7,12 @@ var hoveredTile = null;
 // Map of tile types to images
 var tileImages =
 {
-    'empty-tile': 'tiles/empty_tex.png',
-    'jail-tile':  'tiles/jail_tex.png',
-    'wall-tile':  'tiles/wall_tex.png',
-    'fence-tile': 'tiles/fence_tex.png',
-    'human-spawn-tile': 'tiles/human_spawn_tex.png',
-    'dog-spawn-tile': 'tiles/dog_spawn_tex.png'
+    'empty-tile': [0, 'tiles/empty_tex.png'],
+    'jail-tile':  [1, 'tiles/jail_tex.png'],
+    'wall-tile':  [2, 'tiles/wall_tex.png'],
+    'fence-tile': [3, 'tiles/fence_tex.png'],
+    'human-spawn-tile': [4, 'tiles/human_spawn_tex.png'],
+    'dog-spawn-tile': [5, 'tiles/dog_spawn_tex.png']
 }
 
 // Mouse buttons
@@ -44,7 +44,7 @@ $(document).ready(function() {
 
     // Add tiles to sidebar
     for (var key in tileImages) {
-        $("#tile-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile\"><img src=\"" + tileImages[key] + "\"></div>");
+        $("#tile-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile\"><img src=\"" + tileImages[key][1] + "\"></div>");
     }
 
     // Keyboard handling
@@ -118,11 +118,11 @@ function emptyFill(mapCtr) {
     for (i = 0; i < WIDTH*WIDTH; i++) {
         // Fence around border
         if (i < WIDTH || i >= WIDTH*(WIDTH-1) || i % WIDTH == 0 || i % WIDTH == WIDTH - 1) {
-            mapCtr.append("<div class=\"map-tile fence-tile\"><img src=\"" + tileImages['fence-tile'] + "\"></div>");
+            mapCtr.append("<div class=\"map-tile fence-tile\"><img src=\"" + tileImages['fence-tile'][1] + "\"></div>");
         }
         // Empty tiles otherwise
         else {
-            mapCtr.append("<div class=\"map-tile empty-tile\"><img src=\"" + tileImages['empty-tile'] + "\"></div>");
+            mapCtr.append("<div class=\"map-tile empty-tile\"><img src=\"" + tileImages['empty-tile'][1] + "\"></div>");
         }
     }
 
@@ -174,7 +174,7 @@ function changeTile(tile, leftMouse, rightMouse) {
         if (selectedTile)
         {
             var tileId = selectedTile.attr('id');
-            tile.find("img").attr("src", tileImages[tileId]);
+            tile.find("img").attr("src", tileImages[tileId][1]);
             tile.addClass(tileId);
         }
     }
@@ -182,7 +182,7 @@ function changeTile(tile, leftMouse, rightMouse) {
         tile.css("transform", "");
         tile.removeClass();
         tile.addClass("map-tile");
-        tile.find("img").attr("src", tileImages['empty-tile']);
+        tile.find("img").attr("src", tileImages['empty-tile'][1]);
         tile.addClass("empty-tile");
     }
 }
@@ -213,23 +213,28 @@ function parseRotationAngle(matrix) {
 
 // Exports map to file
 function exportMapToFile(mapCtr) {
-    tileArray = [];
+    var tileByteArray = new Uint8Array(WIDTH*WIDTH*2);
+    var i = 0;
     $(mapCtr).children().each(function() {
         tile = $(this);
         var classList = $(this).attr('class').split(/\s+/);
         $.each(classList, function(index, item) {
             if (item !== 'map-tile') {
                 // Also get rotation
+                var id = tileImages[item][0];
                 var angle = parseRotationAngle(tile.css("transform"));
-                tileArray.push([item,angle]);
+                tileByteArray[i++] = id;
+
+                // Angles encoded as half their value
+                tileByteArray[i++] = angle/2;
             }
         });
     });
 
     var a = document.createElement("a");
-    var file = new Blob([tileArray.join("\n")], {type: 'text/plain'});
+    var file = new Blob([tileByteArray], {type: "octet/stream"});
     a.href = URL.createObjectURL(file);
-    a.download = 'map.txt';
+    a.download = 'map.dat';
     a.click();
 }
 
@@ -241,19 +246,30 @@ function loadMapFromFile(e) {
     }
 
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function() {
         var mapCtr = $("#map-container");
         mapCtr.empty();
 
-        var contents = e.target.result;
-        tileArray = contents.split("\n");
+        var buffer = this.result,
+	        array = new Uint8Array(buffer);
 
-        for (var i = 0; i < tileArray.length; i++) {
-            var splitContents = tileArray[i].split(",");
-            var tileType = splitContents[0];
-            var rotation = splitContents[1];
-            mapCtr.append("<div class=\"map-tile " + tileType + "\"><img src=\"" + tileImages[tileType] + "\"></div>");
-            mapCtr.children().last().css("transform", "rotate(" + rotation + "deg)");
+        for (var i = 0; i < array.length; i++) {
+            var tileTypeIndex = array[i++];
+            var tileType = "";
+
+            // Loop through keys to get tile type from index
+            for (var key in tileImages) {
+                if (tileImages.hasOwnProperty(key) && tileImages[key][0] == tileTypeIndex) {
+                    tileType = key;
+                    break;
+                }
+            }
+
+            // Angles encoded as half their value
+            var angle = array[i] * 2;
+
+            mapCtr.append("<div class=\"map-tile " + tileType + "\"><img src=\"" + tileImages[tileType][1] + "\"></div>");
+            mapCtr.children().last().css("transform", "rotate(" + angle + "deg)");
         }
 
         // Fit to container
@@ -266,5 +282,5 @@ function loadMapFromFile(e) {
         $("#load-btn").val(null);
         $("#load-btn").blur();
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(this.files[0]);
 }
