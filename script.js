@@ -1,5 +1,5 @@
 // Width/depth in tiles
-var WIDTH = 31;
+var WIDTH = 32;
 
 var selectedTile = null;
 var hoveredTile = null;
@@ -11,8 +11,10 @@ var tileImages =
     'jail-tile':  [1, 'tiles/jail_tex.png'],
     'wall-tile':  [2, 'tiles/wall_tex.png'],
     'fence-tile': [3, 'tiles/fence_tex.png'],
-    'human-spawn-tile': [4, 'tiles/human_spawn_tex.png'],
-    'dog-spawn-tile': [5, 'tiles/dog_spawn_tex.png']
+    'human-spawn-tile': [4, 'tiles/human_tex.png'],
+    'dog-spawn-tile': [5, 'tiles/dog_tex.png'],
+    'house-6x6-A-tile': [6, 'tiles/house-6x6-A_tex.png'],
+    'dogbone-tile': [7, 'tiles/dogbone_tex.png']
 }
 
 // Mouse buttons
