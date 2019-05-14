@@ -30,9 +30,9 @@ var tileImages =
 var groundTiles =
 {
     // [index, tile_image, color]
-    'grass-ground': [0, 'tiles/ground/grass.png', '#d2ffad'], // Light green
-    'road-ground': [1, 'tiles/ground/road.png', '#afafaf'], // Light gray
-    'dirt-ground': [2, 'tiles/ground/dirt.png', '#b5651d'] // Light brown
+    'grass-ground': [0, 'tiles/ground/grass.png', 'rgb(210, 255, 173)'], // Light green
+    'road-ground': [1, 'tiles/ground/road.png', 'rgb(175, 175, 175)'], // Light gray
+    'dirt-ground': [2, 'tiles/ground/dirt.png', 'rgb(181, 101, 29)'] // Light brown
 }
 
 // Mouse buttons
@@ -71,12 +71,7 @@ $(document).ready(function() {
     for (var key in groundTiles) {
         $("#ground-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile ground-tile\"><img src=\"" + groundTiles[key][1] + "\"></div>");
         $("#ground-selection").children().last().css("background-color", groundTiles[key][2]);
-    }
-
-    // Select first ground tile by default
-    $("#ground-selection").children().first().addClass("tile-selected");
-    selectedGroundTile = $("#ground-selection").children().first();
-    defaultGroundColor = selectedGroundTile.css("background-color");
+    };
 
     // Keyboard handling
     $(document).keydown(function(e) {
@@ -153,6 +148,12 @@ $(document).ready(function() {
 
 // Fills map with empty white squares
 function emptyFill(mapCtr) {
+    // Select first ground tile by default
+    $(".ground-tile").removeClass("tile-selected");
+    $("#ground-selection").children().first().addClass("tile-selected");
+    selectedGroundTile = $("#ground-selection").children().first();
+    defaultGroundColor = selectedGroundTile.css("background-color")
+
     for (i = 0; i < WIDTH*WIDTH; i++) {
         // Fence around border
         if (i < WIDTH || i >= WIDTH*(WIDTH-1) || i % WIDTH == 0 || i % WIDTH == WIDTH - 1) {
@@ -283,17 +284,31 @@ function parseRotationAngle(matrix) {
 
 // Exports map to file
 function exportMapToFile(mapCtr) {
-    var tileByteArray = new Uint8Array(WIDTH*WIDTH*2);
+    var tileByteArray = new Uint8Array(WIDTH*WIDTH*3);
     var i = 0;
     $(mapCtr).children().each(function() {
         tile = $(this);
         var classList = $(this).attr('class').split(/\s+/);
         $.each(classList, function(index, item) {
             if (item !== 'map-tile') {
-                // Also get rotation
                 var id = tileImages[item][0];
+                var groundId = 0;
+
+                // Get background ID
+                for (var key in groundTiles) {
+                    if (groundTiles.hasOwnProperty(key) && groundTiles[key][2] === tile.css("background-color")) {
+                        groundId = groundTiles[key][0];
+                    }
+                }
+
+                // Also get rotation
                 var angle = parseRotationAngle(tile.css("transform"));
+
+                // Write tile ID to array
                 tileByteArray[i++] = id;
+
+                // Ground ID
+                tileByteArray[i++] = groundId;
 
                 // Angles encoded as half their value
                 tileByteArray[i++] = angle/2;
@@ -327,10 +342,21 @@ function loadMapFromFile(e) {
             var tileTypeIndex = array[i++];
             var tileType = "";
 
+            var groundTypeIndex = array[i++];
+            var groundColor = defaultGroundColor;
+
             // Loop through keys to get tile type from index
             for (var key in tileImages) {
                 if (tileImages.hasOwnProperty(key) && tileImages[key][0] == tileTypeIndex) {
                     tileType = key;
+                    break;
+                }
+            }
+
+            // Loop through keys to get ground type from index
+            for (var key in groundTiles) {
+                if (groundTiles.hasOwnProperty(key) && groundTiles[key][0] == groundTypeIndex) {
+                    groundColor = groundTiles[key][2];
                     break;
                 }
             }
@@ -340,6 +366,7 @@ function loadMapFromFile(e) {
 
             mapCtr.append("<div class=\"map-tile " + tileType + "\"><img src=\"" + tileImages[tileType][1] + "\"></div>");
             mapCtr.children().last().css("transform", "rotate(" + angle + "deg)");
+            mapCtr.children().last().css("background-color", groundColor);
         }
 
         // Fit to container
