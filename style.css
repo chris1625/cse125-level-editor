@@ -73,6 +73,15 @@ html, body {
     flex-wrap: wrap;
     flex-grow: 1;
     align-content: flex-start;
+    border-bottom: 2px solid black;
+}
+
+#ground-selection {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    align-content: flex-start;
 }
 
 .sidebar-tile {

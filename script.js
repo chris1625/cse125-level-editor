@@ -1,20 +1,38 @@
 // Width/depth in tiles
 var WIDTH = 32;
 
-var selectedTile = null;
+// Entity tiles
+var selectedEntityTile = null;
 var hoveredTile = null;
+
+// Ground tiles
+var selectedGroundTile = null;
+var defaultGroundColor = null;
 
 // Map of tile types to images
 var tileImages =
 {
-    'empty-tile': [0, 'tiles/empty_tex.png'],
-    'jail-tile':  [1, 'tiles/jail_tex.png'],
-    'wall-tile':  [2, 'tiles/wall_tex.png'],
-    'fence-tile': [3, 'tiles/fence_tex.png'],
-    'human-spawn-tile': [4, 'tiles/human_tex.png'],
-    'dog-spawn-tile': [5, 'tiles/dog_tex.png'],
-    'house-6x6-A-tile': [6, 'tiles/house-6x6-A_tex.png'],
-    'dogbone-tile': [7, 'tiles/dogbone_tex.png']
+    // [index, tile_image, width (tiles), depth (tiles)]
+    'empty-tile': [0, 'tiles/entity/empty_tex.png', 1, 1],
+    'jail-tile':  [1, 'tiles/entity/jail_tex.png', 1, 1],
+    'wall-tile':  [2, 'tiles/entity/wall_tex.png', 1, 1],
+    'fence-tile': [3, 'tiles/entity/fence_tex.png', 1, 1],
+    'human-spawn-tile': [4, 'tiles/entity/human_tex.png', 1, 1],
+    'dog-spawn-tile': [5, 'tiles/entity/dog_tex.png', 1, 1],
+    'house-6x6-A-tile': [6, 'tiles/entity/house-6x6-A_tex.png', 4, 4],
+    'dogbone-tile': [7, 'tiles/entity/dogbone_tex.png', 1, 1],
+    'doghouse-tile': [8, 'tiles/entity/doghouse_tex.png', 1, 1],
+    'firehydrant-tile': [9, 'tiles/entity/firehydrant_tex.png', 1, 1],
+    'fountain-tile': [10, 'tiles/entity/fountain_tex.png', 3, 3]
+}
+
+// First type of ground is default
+var groundTiles =
+{
+    // [index, tile_image, color]
+    'grass-ground': [0, 'tiles/ground/grass.png', '#d2ffad'], // Light green
+    'road-ground': [1, 'tiles/ground/road.png', '#afafaf'], // Light gray
+    'dirt-ground': [2, 'tiles/ground/dirt.png', '#b5651d'] // Light brown
 }
 
 // Mouse buttons
@@ -44,10 +62,21 @@ $(document).ready(function() {
     // Imports map
     document.getElementById('load-btn').addEventListener('change', loadMapFromFile, false);
 
-    // Add tiles to sidebar
+    // Add entity tiles to sidebar
     for (var key in tileImages) {
-        $("#tile-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile\"><img src=\"" + tileImages[key][1] + "\"></div>");
+        $("#tile-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile entity-tile\"><img src=\"" + tileImages[key][1] + "\"></div>");
     }
+
+    // Add ground tiles to sidebar
+    for (var key in groundTiles) {
+        $("#ground-selection").append("<div id=\"" + key + "\" class=\"sidebar-tile ground-tile\"><img src=\"" + groundTiles[key][1] + "\"></div>");
+        $("#ground-selection").children().last().css("background-color", groundTiles[key][2]);
+    }
+
+    // Select first ground tile by default
+    $("#ground-selection").children().first().addClass("tile-selected");
+    selectedGroundTile = $("#ground-selection").children().first();
+    defaultGroundColor = selectedGroundTile.css("background-color");
 
     // Keyboard handling
     $(document).keydown(function(e) {
@@ -75,11 +104,18 @@ $(document).ready(function() {
         }
     });
 
-    // Select specified tile on click
-    $(".sidebar-tile").click(function() {
-        $(".sidebar-tile").removeClass("tile-selected");
+    // Select specified entity tile on click
+    $(".entity-tile").click(function() {
+        $(".entity-tile").removeClass("tile-selected");
         $(this).addClass("tile-selected");
-        selectedTile = $(this);
+        selectedEntityTile = $(this);
+    });
+
+    // Select specified ground tile on click
+    $(".ground-tile").click(function() {
+        $(".ground-tile").removeClass("tile-selected");
+        $(this).addClass("tile-selected");
+        selectedGroundTile = $(this);
     });
 
     // Resize map container on resize and load
@@ -132,6 +168,9 @@ function emptyFill(mapCtr) {
     $(".map-tile").css("width", mapCtr.width()/WIDTH);
     $(".map-tile").css("height", mapCtr.width()/WIDTH);
 
+    // Set background to default ground texture
+    $(".map-tile").css("background-color", selectedGroundTile.css("background-color"));
+
     registerMapListeners();
 }
 
@@ -169,15 +208,41 @@ function registerMapListeners() {
 function changeTile(tile, leftMouse, rightMouse) {
     // Change tile on map
     if (leftMouse) {
-        tile.css("transform", "");
-        tile.removeClass();
-        tile.addClass("map-tile");
-
-        if (selectedTile)
+        if (selectedEntityTile)
         {
-            var tileId = selectedTile.attr('id');
-            tile.find("img").attr("src", tileImages[tileId][1]);
-            tile.addClass(tileId);
+            var tileId = selectedEntityTile.attr('id');
+            var tileInfo = tileImages[tileId];
+
+            // Get index
+            var index = tile.index();
+            var xIndex = index % WIDTH;
+            var zIndex = Math.floor(index / WIDTH);
+
+            var structWidth = tileInfo[2];
+            var structDepth = tileInfo[3];
+
+            // Abort if our structure won't fit
+            if (xIndex + structWidth - 1 >= WIDTH ||
+                zIndex + structDepth - 1 >= WIDTH) {
+                return;
+            }
+
+            // Set tile attributes for each tile in range
+            for (var i = zIndex; i < zIndex + structDepth; i++) {
+                for (var j = xIndex; j < xIndex + structWidth; j++) {
+                    var curTile = $("#map-container").children().eq(i * WIDTH + j);
+
+                    curTile.css("transform", "");
+                    curTile.removeClass();
+                    curTile.addClass("map-tile");
+
+                    curTile.find("img").attr("src", tileImages[tileId][1]);
+                    curTile.addClass(tileId);
+
+                    // Background according to selected ground texture
+                    curTile.css("background-color", selectedGroundTile.css("background-color"));
+                }
+            }
         }
     }
     else if (rightMouse) { // Right mouse button pressed
@@ -186,6 +251,9 @@ function changeTile(tile, leftMouse, rightMouse) {
         tile.addClass("map-tile");
         tile.find("img").attr("src", tileImages['empty-tile'][1]);
         tile.addClass("empty-tile");
+
+        // Background according to selected ground texture
+        tile.css("background-color", defaultGroundColor);
     }
 }
 
