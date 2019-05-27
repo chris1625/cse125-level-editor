@@ -1,5 +1,5 @@
 // Width/depth in tiles
-var WIDTH = 32;
+var WIDTH = 48;
 
 // Entity tiles
 var selectedEntityTile = null;
