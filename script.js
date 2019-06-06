@@ -23,7 +23,8 @@ var tileImages =
     'dogbone-tile': [7, 'tiles/entity/dogbone_tex.png', 1, 1],
     'doghouse-tile': [8, 'tiles/entity/doghouse_tex.png', 1, 1],
     'firehydrant-tile': [9, 'tiles/entity/firehydrant_tex.png', 1, 1],
-    'fountain-tile': [10, 'tiles/entity/fountain_tex.png', 3, 3]
+    'fountain-tile': [10, 'tiles/entity/fountain_tex.png', 3, 3],
+    'tree-tile': [11, 'tiles/entity/tree_tex.png', 1, 1]
 }
 
 // First type of ground is default
